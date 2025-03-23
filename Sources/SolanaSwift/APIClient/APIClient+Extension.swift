@@ -111,7 +111,7 @@ public extension SolanaAPIClient {
     /// - Returns wether account is valid
     ///
     func checkAccountValidation(account: String) async throws -> Bool {
-        try (await getAccountInfo(account: account) as BufferInfo<EmptyInfo>?) != nil
+        try await (getAccountInfo(account: account) as BufferInfo<EmptyInfo>?) != nil
     }
 
     func findSPLTokenDestinationAddress(
@@ -120,15 +120,19 @@ public extension SolanaAPIClient {
         tokenProgramId: PublicKey
     ) async throws -> SPLTokenDestinationAddress {
         var address: String
-        var accountInfo: BufferInfo<TokenAccountState>?
         do {
-            accountInfo = try await getAccountInfoThrowable(account: destinationAddress)
-            let toTokenMint = accountInfo?.data.mint.base58EncodedString
+            guard let accountInfo: BufferInfo<TokenAccountState> =
+                try await getAccountInfo(account: destinationAddress)
+            else {
+                throw APIClientError.couldNotRetrieveAccountInfo
+            }
+
+            let toTokenMint = accountInfo.data.mint.base58EncodedString
             // detect if destination address is already a SPLToken address
             if mintAddress == toTokenMint {
                 address = destinationAddress
                 // detect if destination address is a SOL address
-            } else if accountInfo?.owner == SystemProgram.id.base58EncodedString {
+            } else if accountInfo.owner == SystemProgram.id.base58EncodedString {
                 let owner = try PublicKey(string: destinationAddress)
                 let tokenMint = try PublicKey(string: mintAddress)
                 // create associated token address
@@ -161,7 +165,7 @@ public extension SolanaAPIClient {
             // check if associated address is already registered
             let info: BufferInfo<TokenAccountState>?
             do {
-                info = try await getAccountInfoThrowable(account: toPublicKey.base58EncodedString)
+                info = try await getAccountInfo(account: toPublicKey.base58EncodedString)
             } catch {
                 info = nil
             }
@@ -175,19 +179,5 @@ public extension SolanaAPIClient {
             }
         }
         return (destination: toPublicKey, isUnregisteredAsocciatedToken: isUnregisteredAsocciatedToken)
-    }
-
-    /// Returns all information associated with the account of provided Pubkey
-    /// - Parameters:
-    ///  - account: Pubkey of account to query, as base-58 encoded string
-    /// - Throws: APIClientError
-    /// - Returns The result will be an BufferInfo
-    /// - SeeAlso https://docs.solana.com/developing/clients/jsonrpc-api#getaccountinfo
-    func getAccountInfoThrowable<T: BufferLayout>(account: String) async throws -> BufferInfo<T> {
-        let info: BufferInfo<T>? = try await getAccountInfo(account: account)
-        guard let info = info else {
-            throw APIClientError.couldNotRetrieveAccountInfo
-        }
-        return info
     }
 }
