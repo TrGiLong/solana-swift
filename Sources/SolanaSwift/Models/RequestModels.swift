@@ -68,7 +68,11 @@ public struct OwnerInfoParams: Encodable {
     }
 }
 
-public typealias Commitment = String
+public enum Commitment: String, Codable {
+    case processed = "processed"
+    case confirmed = "confirmed" 
+    case finalized = "finalized"
+}
 
 public struct RequestConfiguration: Encodable {
     public let commitment: Commitment?

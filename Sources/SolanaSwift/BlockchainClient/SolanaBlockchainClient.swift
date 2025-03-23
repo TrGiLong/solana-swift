@@ -74,7 +74,7 @@ public extension SolanaBlockchainClient {
         )
         return try await apiClient.simulateTransaction(
             transaction: serializedTransaction, configs: RequestConfiguration(
-                commitment: "confirmed",
+                commitment: .confirmed,
                 encoding: "base64",
                 replaceRecentBlockhash: true
             )!

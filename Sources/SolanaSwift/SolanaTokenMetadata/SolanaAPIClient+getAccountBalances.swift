@@ -3,7 +3,7 @@ public extension SolanaAPIClient {
         for address: String,
         withToken2022: Bool,
         tokensRepository: TokenRepository,
-        commitment: String = "confirmed"
+        commitment: Commitment
     ) async throws -> (
         resolved: [AccountBalance],
         unresolved: [UnknownAccountBalance]
@@ -50,7 +50,7 @@ public extension SolanaAPIClient {
     >(
         for address: String,
         tokensRepository: TokenRepository,
-        commitment: String = "confirmed",
+        commitment: Commitment,
         programId: String,
         accountStateType _: T.Type,
         mintType _: M.Type
@@ -74,6 +74,7 @@ public extension SolanaAPIClient {
         return try await convertResult(
             tokenAccounts: tokenAccounts,
             tokensRepository: tokensRepository,
+            commitment: commitment,
             tokenProgramId: programId,
             mintType: M.self
         )
@@ -85,7 +86,7 @@ public extension SolanaAPIClient {
     >(
         tokenAccounts: [TokenAccount<T>],
         tokensRepository: TokenRepository,
-        commitment: String = "confirmed",
+        commitment: Commitment,
         tokenProgramId: String,
         mintType _: M.Type
     ) async throws -> (

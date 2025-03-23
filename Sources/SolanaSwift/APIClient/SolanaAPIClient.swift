@@ -339,8 +339,19 @@ public protocol SolanaAPIClient {
     ///
     func getRecentPerformanceSamples(limit: [UInt]) async throws -> [PerfomanceSamples]
 
-    // TODO: full implement
+    /// Returns the current slot
+    /// - Throws: APIClientError
+    /// - Returns The result field will be a UInt64
+    /// - SeeAlso https://solana.com/docs/rpc/http/getslot
+    ///
     func getSlot() async throws -> UInt64
 
+    /// Returns the address lookup table for a given account key
+    /// - Parameters:
+    ///   - accountKey: the account key
+    /// - Throws: APIClientError
+    /// - Returns The result field will be an AddressLookupTableAccount
+    /// - SeeAlso https://docs.solana.com/developing/clients/jsonrpc-api#getaddresslookuptable
+    ///
     func getAddressLookupTable(accountKey: PublicKey) async throws -> AddressLookupTableAccount?
 }
